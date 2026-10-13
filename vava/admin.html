@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Panel · Catálogo Mayorista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{--bg:#08090a;--side:#0c0d0e;--card:#101112;--card2:#151718;--line:#1f2224;--txt:#f1f2f3;--mut:#8b9096;--green:#22d67a;--gold:#f5b82e;--red:#ff5a5f;--blue:#3b8bff;--violet:#a78bfa}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--txt);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-size:14px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+aside.side{background:var(--side);border-right:1px solid var(--line);padding:18px 10px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;padding:0 10px 18px}
+.logo span{width:36px;height:36px;border-radius:10px;background:#0a1d13;border:1px solid #14432b;display:grid;place-items:center;color:var(--green);font-size:18px}
+.grp{font-size:12px;color:var(--mut);font-weight:700;padding:14px 12px 6px}
+.nv{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:10px;font-weight:600;font-size:14px;color:#d7dadd;text-align:left}
+.nv:hover{background:var(--card2)}
+.nv.on{background:#0e2a1b;color:var(--green)}
+.nv.sub{padding-left:40px;font-size:13.5px}
+.nv svg{font-size:17px}
+.me{margin-top:auto;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card)}
+.me b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me small{color:var(--mut);font-size:11px}
+.me .r{display:flex;gap:6px;margin-top:10px}
+.me .r a,.me .r button{flex:1;border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;place-items:center;font-size:12px;font-weight:700;gap:4px;grid-auto-flow:column}
+.me .r a:hover,.me .r button:hover{border-color:var(--green);color:var(--green)}
+.main{min-width:0}
+.top{display:flex;align-items:center;gap:12px;height:60px;padding:0 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(8,9,10,.92);backdrop-filter:blur(8px);z-index:10}
+.top h1{font-size:18px;font-weight:800}
+.menu{display:none;font-size:20px}
+.tag{border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:800;background:var(--card)}
+.tag b{color:var(--green)}
+.content{padding:20px 24px 60px;max-width:1500px}
+.hd{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.hd h2{font-size:18px;font-weight:800}
+.hd .sp{flex:1}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card);border-radius:9px;padding:8px 13px;font-weight:700;font-size:13px}
+.btn:hover{border-color:#34393d}
+.btn.p{background:var(--green);color:#03170c;border-color:var(--green)}
+.btn.p:hover{filter:brightness(1.08)}
+.btn.d{color:var(--red)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.sel,.inp{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13px;width:100%}
+.sel{width:auto}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px 18px;position:relative;overflow:hidden}
+.kpi:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--c,var(--green)),transparent)}
+.kpi h4{font-size:11px;letter-spacing:1.2px;color:var(--mut);font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.kpi h4 i{width:24px;height:24px;border-radius:7px;background:var(--card2);display:grid;place-items:center;font-style:normal;color:var(--c,var(--green))}
+.kpi .v{font-size:28px;font-weight:800;margin-top:10px;letter-spacing:-.02em}
+.kpi small{color:var(--mut);font-size:11.5px}
+.big{border:1.5px solid var(--green);border-radius:14px;padding:18px 22px;background:linear-gradient(90deg,rgba(34,214,122,.10),transparent 70%),var(--card);display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+.big h4{font-size:12px;letter-spacing:1.2px;font-weight:800;color:#cfd3d6}
+.big .n{font-size:44px;font-weight:800;color:var(--green);line-height:1.1;margin:4px 0}
+.big small{color:var(--mut);font-size:12px}
+.brk{display:flex;gap:22px;flex-wrap:wrap}
+.brk div small{display:block;text-transform:uppercase;font-size:10px;letter-spacing:.8px}
+.brk div b{font-size:22px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.box h3{font-size:15px;font-weight:800;display:flex;align-items:center;gap:9px}
+.box .s{color:var(--mut);font-size:12px;margin:3px 0 14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;padding:3px;background:var(--bg)}
+.seg button{padding:5px 12px;border-radius:7px;font-size:12px;font-weight:700;color:var(--mut)}
+.seg .on{background:#0e2a1b;color:var(--green)}
+.chart{display:flex;align-items:flex-end;gap:3px;height:170px;padding-top:10px}
+.bar{flex:1;min-width:2px;background:linear-gradient(var(--green),#0f6b3e);border-radius:4px 4px 0 0;position:relative;min-height:2px}
+.bar:hover{filter:brightness(1.25)}
+.axis{display:flex;justify-content:space-between;color:var(--mut);font-size:11px;margin-top:6px}
+.emp{color:var(--mut);text-align:center;padding:34px 0;font-size:13px}
+.rank{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.rank:first-of-type{border-top:0}
+.rank .t{height:5px;background:var(--line);border-radius:3px;margin-top:5px}
+.rank .t i{display:block;height:100%;background:var(--green);border-radius:3px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--mut);padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:#131516}
+.thumb{width:44px;height:44px;border-radius:8px;background:#1b1d1f;object-fit:contain;display:grid;place-items:center}
+.mut{color:var(--mut)}.g{color:var(--green)}.au{color:var(--gold)}
+.pill{display:inline-block;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:800;border:1px solid}
+.st-pendiente{color:var(--gold);border-color:#5a4410;background:#1d1708}
+.st-confirmado{color:var(--blue);border-color:#143d78;background:#0a1830}
+.st-enviado{color:var(--violet);border-color:#43377a;background:#15112b}
+.st-entregado{color:var(--green);border-color:#14582f;background:#0a2013}
+.st-cancelado{color:var(--red);border-color:#6a2023;background:#250d0e}
+.sw{width:38px;height:22px;border-radius:12px;background:var(--line);position:relative;transition:.15s}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s}
+.sw.on{background:var(--green)}.sw.on:after{left:19px}
+.acts{display:flex;gap:6px;justify-content:flex-end}
+.ib{width:32px;height:32px;border:1px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:14px}
+.ib:hover{border-color:var(--green);color:var(--green)}.ib.d:hover{border-color:var(--red);color:var(--red)}
+.fl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:700}
+.chip.on{border-color:var(--green);color:var(--green);background:#0b1c13}
+.det td{background:#0d0e0f!important;padding:16px 22px}
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;display:grid;place-items:start center;overflow:auto;padding:30px 12px}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:16px;width:min(720px,100%)}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);font-weight:800;font-size:16px}
+.mb{padding:18px 20px;display:grid;gap:14px}
+.mf{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+.f label{display:block;font-size:12px;font-weight:700;color:var(--mut);margin-bottom:6px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.help{font-size:11.5px;color:var(--mut);margin-top:5px}
+.trow{display:grid;grid-template-columns:1fr 1fr 1fr 34px;gap:8px;margin-bottom:8px}
+.imgrow{display:flex;gap:12px;align-items:center}
+.imgrow .thumb{width:72px;height:72px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0e2a1b;border:1px solid var(--green);color:var(--green);padding:11px 18px;border-radius:10px;font-weight:700;z-index:99;font-size:13px}
+.toast.err{background:#250d0e;border-color:var(--red);color:var(--red)}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.lbox{width:min(400px,100%);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px}
+.lbox h1{font-size:22px;margin:14px 0 4px}
+.lbox p{color:var(--mut);font-size:13px;margin-bottom:18px}
+.lbox .f{margin-bottom:14px}
+pre.code{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap;margin:10px 0}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  aside.side{position:fixed;z-index:40;width:260px;transform:translateX(-100%);transition:transform .2s}
+  aside.side.open{transform:none}
+  .menu{display:block}.two{grid-template-columns:1fr}.content{padding:16px 14px 60px}.top{padding:0 14px}
+  .g2,.g3{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){aside.side,.sw,.sw:after{transition:none}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useMemo,useRef,useCallback}=React;
+const CFG=window.APP_CONFIG||{};
+const db=(CFG.SUPABASE_URL&&CFG.SUPABASE_ANON_KEY&&window.supabase)?window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY):null;
+
+/* ---------- utilidades ---------- */
+const num=v=>{const x=parseFloat(String(v).replace(",","."));return isNaN(x)?0:x};
+const usd=v=>"USDT $"+Number(v||0).toLocaleString("es-AR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const ars=v=>"$"+Math.round(v||0).toLocaleString("es-AR");
+const fdate=s=>new Date(s).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"});
+const slugify=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const ESTADOS=["pendiente","confirmado","enviado","entregado","cancelado"];
+const P={
+ dash:'<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+ pkg:'<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+ list:'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+ tag:'<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+ set:'<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
+ out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+ plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+ edit:'<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>',
+ del:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+ eye:'<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+ up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+ warn:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+ menu:'<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+ ext:'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+ x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+ chart:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+ cart:'<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+ trophy:'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0Z"/>',
+ wa:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>'
+};
+const Ic=({n})=><svg className="i" viewBox="0 0 24 24" aria-hidden="true" dangerouslySetInnerHTML={{__html:P[n]}}/>;
+
+function useToast(){const [t,set]=useState(null);const show=(msg,err)=>{set({msg,err});setTimeout(()=>set(null),3200)};
+  return [t&&<div className={"toast"+(t.err?" err":"")} role="status">{t.msg}</div>,show]}
+
+/* Comprime la imagen a 900px antes de subirla (más rápida para el cliente) */
+async function shrink(file,max=900){
+  const bmp=await createImageBitmap(file);const k=Math.min(1,max/Math.max(bmp.width,bmp.height));
+  const c=document.createElement("canvas");c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+  c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+  return new Promise(r=>c.toBlob(b=>r(b),"image/webp",.85));
+}
+async function uploadImage(file,folder){
+  const blob=await shrink(file);const ext=blob.type==="image/webp"?"webp":"png";
+  const path=`${folder}/${Date.now()}-${Math.random().toString(36).slice(2,7)}.${ext}`;
+  const {error}=await db.storage.from("productos").upload(path,blob,{contentType:blob.type});
+  if(error) throw error;
+  return db.storage.from("productos").getPublicUrl(path).data.publicUrl;
+}
+
+function Modal({title,onClose,children,foot}){
+  useEffect(()=>{const f=e=>e.key==="Escape"&&onClose();window.addEventListener("keydown",f);return()=>window.removeEventListener("keydown",f)},[]);
+  return <div className="veil" onMouseDown={e=>e.target===e.currentTarget&&onClose()}>
+    <div className="modal" role="dialog" aria-label={title}>
+      <div className="mh"><span>{title}</span><button className="ib" onClick={onClose} aria-label="Cerrar"><Ic n="x"/></button></div>
+      <div className="mb">{children}</div>{foot&&<div className="mf">{foot}</div>}
+    </div></div>;
+}
+
+/* =====================  LOGIN / ACCESO  ===================== */
+function Login(){
+  const [email,setEmail]=useState(""),[pass,setPass]=useState(""),[err,setErr]=useState(""),[busy,setBusy]=useState(false);
+  const go=async e=>{e.preventDefault();setBusy(true);setErr("");
+    const {error}=await db.auth.signInWithPassword({email:email.trim(),password:pass});
+    if(error){setErr("Email o contraseña incorrectos.");setBusy(false)}};
+  return <div className="login"><form className="lbox" onSubmit={go}>
+    <div className="logo" style={{padding:0}}><span><Ic n="chart"/></span>Panel</div>
+    <h1>Ingresá a tu panel</h1><p>Administrá productos, categorías y pedidos de tu catálogo.</p>
+    <div className="f"><label htmlFor="em">Email</label><input id="em" className="inp" type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="username"/></div>
+    <div className="f"><label htmlFor="pw">Contraseña</label><input id="pw" className="inp" type="password" required value={pass} onChange={e=>setPass(e.target.value)} autoComplete="current-password"/></div>
+    {err&&<p style={{color:"var(--red)",marginBottom:12}} role="alert">{err}</p>}
+    <button className="btn p" style={{width:"100%",justifyContent:"center",padding:12}} disabled={busy}>{busy?"Ingresando…":"Ingresar"}</button>
+  </form></div>;
+}
+function NoAccess({user}){
+  return <div className="login"><div className="lbox" style={{width:"min(560px,100%)"}}>
+    <h1>Tu usuario no es administrador</h1>
+    <p>Iniciaste sesión como <b>{user.email}</b>, pero todavía no figura en la tabla de administradores. Ejecutá esto en Supabase &gt; SQL Editor:</p>
+    <pre className="code">{`insert into public.admins (user_id) values ('${user.id}');`}</pre>
+    <button className="btn" onClick={()=>db.auth.signOut()}>Cerrar sesión</button></div></div>;
+}
+function NoConfig(){
+  return <div className="login"><div className="lbox" style={{width:"min(560px,100%)"}}>
+    <h1>Falta conectar Supabase</h1>
+    <p>Abrí <b>config.js</b> y pegá la URL y la anon key de tu proyecto (Project Settings &gt; API). Después ejecutá <b>supabase.sql</b> en el SQL Editor.</p></div></div>;
+}
+
+/* =====================  DASHBOARD  ===================== */
+const PERIODS=[["hoy","Hoy"],["mes","Este mes"],["anio","Este año"],["todo","Todo"]];
+function periodStart(k){const d=new Date();
+  if(k==="hoy") return new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  if(k==="mes") return new Date(d.getFullYear(),d.getMonth(),1);
+  if(k==="anio") return new Date(d.getFullYear(),0,1);
+  return new Date(0)}
+
+function Dashboard({orders,products,go}){
+  const [per,setPer]=useState("mes"),[metric,setMetric]=useState("pedidos");
+  const start=periodStart(per);
+  const inP=orders.filter(o=>new Date(o.created_at)>=start);
+  const valid=inP.filter(o=>o.estado!=="cancelado");
+  const fact=valid.reduce((s,o)=>s+Number(o.total_usdt),0), factA=valid.reduce((s,o)=>s+Number(o.total_ars),0);
+  const units=valid.reduce((s,o)=>s+o.pedido_items.reduce((a,i)=>a+i.cantidad,0),0);
+  const ticket=valid.length?fact/valid.length:0;
+  const by=e=>orders.filter(o=>o.estado===e).length;
+  const active=products.filter(p=>p.activo);
+  const crit=active.filter(p=>p.stock!==null&&p.stock>0&&p.stock<=p.stock_minimo);
+  const out=active.filter(p=>p.stock!==null&&p.stock<=0);
+
+  // serie: por día (hoy/mes) o por mes (año/todo)
+  const series=useMemo(()=>{
+    const m=new Map();const monthly=per==="anio"||per==="todo";
+    const keyOf=d=>monthly?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    if(per==="mes"){const n=new Date(start.getFullYear(),start.getMonth()+1,0).getDate();for(let i=1;i<=n;i++)m.set(keyOf(new Date(start.getFullYear(),start.getMonth(),i)),{pedidos:0,fact:0})}
+    if(per==="anio"){for(let i=0;i<12;i++)m.set(keyOf(new Date(start.getFullYear(),i,1)),{pedidos:0,fact:0})}
+    valid.forEach(o=>{const k=keyOf(new Date(o.created_at));const c=m.get(k)||{pedidos:0,fact:0};c.pedidos++;c.fact+=Number(o.total_usdt);m.set(k,c)});
+    return [...m.entries()].sort((a,b)=>a[0]<b[0]?-1:1);
+  },[orders,per]);
+  const maxV=Math.max(1,...series.map(([,v])=>metric==="pedidos"?v.pedidos:v.fact));
+
+  const top=useMemo(()=>{const m=new Map();valid.forEach(o=>o.pedido_items.forEach(i=>m.set(i.nombre,(m.get(i.nombre)||0)+i.cantidad)));
+    return [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10)},[orders,per]);
+  const recent=orders.slice(0,8);
+
+  const K=({t,v,s,ic,c})=><div className="kpi" style={{"--c":c}}><h4><i><Ic n={ic}/></i>{t}</h4><div className="v">{v}</div><small>{s}</small></div>;
+  return <>
+    <div className="hd"><h2>Resumen</h2><span className="sp"/>
+      <div className="seg" role="group" aria-label="Período">{PERIODS.map(([k,l])=><button key={k} className={per===k?"on":""} onClick={()=>setPer(k)}>{l}</button>)}</div></div>
+
+    <div className="big">
+      <div><h4>TOTAL DE PEDIDOS</h4><div className="n">{orders.length}</div><small>Recibidos desde que abrió la tienda</small></div>
+      <div className="brk">{ESTADOS.map(e=><div key={e}><small className="mut">{e}</small><b className={e==="pendiente"?"au":e==="cancelado"?"":"g"} style={e==="cancelado"?{color:"var(--red)"}:null}>{by(e)}</b></div>)}</div>
+    </div>
+
+    <div className="kpis">
+      <K t="Pedidos" v={inP.length} s={`${valid.length} válidos en el período`} ic="list" c="var(--green)"/>
+      <K t="Facturación" v={usd(fact)} s={`≈ ${ars(factA)} ARS`} ic="chart" c="var(--green)"/>
+      <K t="Ticket promedio" v={usd(ticket)} s="Por pedido" ic="cart" c="var(--blue)"/>
+      <K t="Unidades pedidas" v={units} s="Productos movidos" ic="pkg" c="var(--blue)"/>
+      <K t="Productos activos" v={active.length} s={`${products.length-active.length} ocultos`} ic="tag" c="var(--violet)"/>
+      <K t="Stock crítico" v={crit.length} s="Productos bajos" ic="warn" c="var(--gold)"/>
+      <K t="Sin stock" v={out.length} s="Agotados" ic="warn" c="var(--red)"/>
+      <K t="Pendientes" v={by("pendiente")} s="Esperando confirmación" ic="list" c="var(--gold)"/>
+    </div>
+
+    <div className="box">
+      <div className="hd" style={{marginBottom:6}}><h3><Ic n="chart"/>Tendencia</h3><span className="sp"/>
+        <div className="seg"><button className={metric==="pedidos"?"on":""} onClick={()=>setMetric("pedidos")}>Pedidos</button><button className={metric==="fact"?"on":""} onClick={()=>setMetric("fact")}>Facturación</button></div></div>
+      <p className="s">{per==="anio"||per==="todo"?"Mes por mes":"Día por día"} · {PERIODS.find(p=>p[0]===per)[1]}</p>
+      {valid.length===0?<p className="emp">Sin pedidos en el período seleccionado</p>:<>
+        <div className="chart">{series.map(([k,v])=>{const val=metric==="pedidos"?v.pedidos:v.fact;
+          return <div key={k} className="bar" style={{height:Math.max(2,val/maxV*100)+"%"}} title={`${k}: ${metric==="pedidos"?val+" pedidos":usd(val)}`}/>})}</div>
+        <div className="axis"><span>{series[0][0]}</span><span>{series[series.length-1][0]}</span></div></>}
+    </div>
+
+    <div className="two">
+      <div className="box"><h3><Ic n="trophy"/>Top 10 productos más pedidos</h3><p className="s">Por unidades · {PERIODS.find(p=>p[0]===per)[1]}</p>
+        {top.length===0?<p className="emp">Sin pedidos en el período</p>:top.map(([n,q],i)=>
+          <div className="rank" key={n}><b className="mut">{i+1}</b><div>{n}<div className="t"><i style={{width:q/top[0][1]*100+"%"}}/></div></div><b>{q}</b></div>)}</div>
+      <div className="box"><h3><Ic n="list"/>Últimos pedidos</h3><p className="s">Los 8 más recientes</p>
+        {recent.length===0?<p className="emp">Todavía no hay pedidos</p>:recent.map(o=>
+          <div className="rank" key={o.id} style={{gridTemplateColumns:"54px 1fr auto"}}><b className="g">#{o.numero}</b>
+            <div>{o.cliente_nombre}<div className="mut" style={{fontSize:11}}>{fdate(o.created_at)}</div></div>
+            <div style={{textAlign:"right"}}><b>{usd(o.total_usdt)}</b><div><span className={"pill st-"+o.estado}>{o.estado}</span></div></div></div>)}
+        {recent.length>0&&<button className="btn" style={{marginTop:12}} onClick={()=>go("pedidos")}>Ver todos los pedidos</button>}</div>
+    </div>
+
+    <div className="box"><h3><Ic n="warn"/>Stock crítico</h3><p className="s">Productos con stock igual o menor al mínimo</p>
+      {crit.length+out.length===0?<p className="emp g">✓ Todo el stock está bien</p>:
+        [...out,...crit].map(p=><div className="rank" key={p.id} style={{gridTemplateColumns:"1fr auto"}}><span>{p.nombre}</span>
+          <b style={{color:p.stock<=0?"var(--red)":"var(--gold)"}}>{p.stock<=0?"Agotado":p.stock+" u."}</b></div>)}</div>
+  </>;
+}
+
+/* =====================  PEDIDOS  ===================== */
+function Pedidos({orders,reload,toast}){
+  const [f,setF]=useState("todos"),[q,setQ]=useState(""),[openId,setOpenId]=useState(null);
+  const list=orders.filter(o=>(f==="todos"||o.estado===f)&&(!q||(`#${o.numero} ${o.cliente_nombre} ${o.cliente_telefono}`).toLowerCase().includes(q.toLowerCase())));
+  const tot=list.filter(o=>o.estado!=="cancelado").reduce((s,o)=>s+Number(o.total_usdt),0);
+  const setEstado=async(o,estado)=>{const {error}=await db.from("pedidos").update({estado}).eq("id",o.id);
+    error?toast("No se pudo cambiar el estado",1):(toast("Pedido #"+o.numero+" → "+estado),reload())};
+  const del=async o=>{if(!confirm(`¿Eliminar el pedido #${o.numero}? No se puede deshacer.`))return;
+    const {error}=await db.from("pedidos").delete().eq("id",o.id);error?toast("No se pudo eliminar",1):(toast("Pedido eliminado"),reload())};
+  return <>
+    <div className="hd"><h2>Pedidos</h2><span className="mut">{list.length} pedidos · {usd(tot)} sin contar cancelados</span><span className="sp"/>
+      <input className="inp" style={{width:220}} placeholder="Buscar cliente o #" value={q} onChange={e=>setQ(e.target.value)} aria-label="Buscar pedido"/></div>
+    <div className="fl">{["todos",...ESTADOS].map(e=><button key={e} className={"chip"+(f===e?" on":"")} onClick={()=>setF(e)}>
+      {e[0].toUpperCase()+e.slice(1)} ({e==="todos"?orders.length:orders.filter(o=>o.estado===e).length})</button>)}</div>
+    <div className="tw"><table>
+      <thead><tr><th>#</th><th>Fecha</th><th>Cliente</th><th>Items</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+      <tbody>{list.length===0&&<tr><td colSpan="7" className="emp">No hay pedidos para mostrar</td></tr>}
+      {list.flatMap(o=>[
+        <tr key={o.id}>
+          <td><b className="g">#{o.numero}</b></td><td className="mut" style={{whiteSpace:"nowrap"}}>{fdate(o.created_at)}</td>
+          <td><b>{o.cliente_nombre}</b><div className="mut" style={{fontSize:11}}>{o.cliente_telefono}</div></td>
+          <td>{o.pedido_items.reduce((s,i)=>s+i.cantidad,0)} u.</td>
+          <td><b>{usd(o.total_usdt)}</b><div className="au" style={{fontSize:11}}>{ars(o.total_ars)}</div></td>
+          <td><select className={"sel pill st-"+o.estado} value={o.estado} onChange={e=>setEstado(o,e.target.value)} aria-label="Estado del pedido">
+            {ESTADOS.map(e=><option key={e} value={e}>{e}</option>)}</select></td>
+          <td><div className="acts">
+            {o.cliente_telefono&&<a className="ib" target="_blank" rel="noreferrer" aria-label="Escribir por WhatsApp" href={`https://wa.me/${o.cliente_telefono.replace(/\D/g,"")}`}><Ic n="wa"/></a>}
+            <button className="ib" aria-label="Ver detalle" onClick={()=>setOpenId(openId===o.id?null:o.id)}><Ic n="eye"/></button>
+            <button className="ib d" aria-label="Eliminar pedido" onClick={()=>del(o)}><Ic n="del"/></button></div></td></tr>,
+        openId===o.id&&<tr className="det" key={o.id+"d"}><td colSpan="7">
+          {o.nota&&<p style={{marginBottom:10}}><b>Nota:</b> {o.nota}</p>}
+          <table><thead><tr><th>Producto</th><th>Cant.</th><th>Precio u.</th><th>Subtotal</th></tr></thead><tbody>
+            {o.pedido_items.map(i=><tr key={i.id}><td>{i.nombre}</td><td>{i.cantidad}</td><td>{usd(i.precio_usdt)}</td><td><b>{usd(i.precio_usdt*i.cantidad)}</b> <span className="au">{ars(i.precio_ars*i.cantidad)}</span></td></tr>)}
+          </tbody></table></td></tr>].filter(Boolean))}
+      </tbody></table></div>
+  </>;
+}
+
+/* =====================  PRODUCTOS  ===================== */
+const EMPTY_P={nombre:"",categoria:"",marca:"",subcategoria:"",imagen_url:"",precio_usdt:"",precio_ars:"",tramos:[],stock:"",stock_minimo:5,activo:true,orden:0};
+function ProductForm({initial,cats,onClose,onSaved,toast}){
+  const [f,setF]=useState(initial?{...initial,precio_ars:initial.precio_ars??"",stock:initial.stock??"",tramos:(initial.tramos||[]).map(t=>({min:t.min,usdt:t.usdt,ars:t.ars??""}))}:{...EMPTY_P,categoria:cats[0]?cats[0].slug:""});
+  const [busy,setBusy]=useState(false),[up,setUp]=useState(false);
+  const set=(k,v)=>setF(s=>({...s,[k]:v}));
+  const setT=(i,k,v)=>set("tramos",f.tramos.map((t,j)=>j===i?{...t,[k]:v}:t));
+  const pick=async e=>{const file=e.target.files[0];if(!file)return;setUp(true);
+    try{set("imagen_url",await uploadImage(file,"productos"))}catch(err){toast("No se pudo subir la imagen: "+err.message,1)}setUp(false)};
+  const save=async()=>{
+    if(!f.nombre.trim()) return toast("Poné un nombre",1);
+    if(!f.categoria) return toast("Elegí una categoría",1);
+    if(!(num(f.precio_usdt)>0)) return toast("El precio en USDT debe ser mayor a 0",1);
+    const tramos=f.tramos.map(t=>({min:Math.round(num(t.min)),usdt:num(t.usdt),...(num(t.ars)>0?{ars:Math.round(num(t.ars))}:{})}))
+      .filter(t=>t.min>0&&t.usdt>0).sort((a,b)=>a.min-b.min);
+    const row={nombre:f.nombre.trim(),categoria:f.categoria,marca:f.marca.trim(),subcategoria:f.subcategoria.trim(),imagen_url:f.imagen_url.trim(),
+      precio_usdt:num(f.precio_usdt),precio_ars:f.precio_ars===""?null:Math.round(num(f.precio_ars)),tramos,
+      stock:f.stock===""?null:Math.round(num(f.stock)),stock_minimo:Math.round(num(f.stock_minimo)),activo:f.activo,orden:Math.round(num(f.orden))};
+    setBusy(true);
+    const {error}=f.id?await db.from("productos").update(row).eq("id",f.id):await db.from("productos").insert(row);
+    setBusy(false);
+    if(error) return toast("No se pudo guardar: "+error.message,1);
+    toast(f.id?"Producto actualizado":"Producto creado");onSaved();onClose();
+  };
+  return <Modal title={f.id?"Editar producto":"Nuevo producto"} onClose={onClose}
+    foot={<><button className="btn" onClick={onClose}>Cancelar</button><button className="btn p" onClick={save} disabled={busy||up}>{busy?"Guardando…":"Guardar producto"}</button></>}>
+    <div className="f"><label>Nombre</label><input className="inp" value={f.nombre} onChange={e=>set("nombre",e.target.value)} autoFocus/></div>
+    <div className="g3">
+      <div className="f"><label>Categoría</label><select className="sel" style={{width:"100%"}} value={f.categoria} onChange={e=>set("categoria",e.target.value)}>
+        {cats.map(c=><option key={c.slug} value={c.slug}>{c.nombre}</option>)}</select></div>
+      <div className="f"><label>Marca</label><input className="inp" value={f.marca} onChange={e=>set("marca",e.target.value)}/></div>
+      <div className="f"><label>Subcategoría</label><input className="inp" value={f.subcategoria} onChange={e=>set("subcategoria",e.target.value)}/></div>
+    </div>
+    <div className="f"><label>Imagen</label><div className="imgrow">
+      {f.imagen_url?<img className="thumb" src={f.imagen_url} alt=""/>:<span className="thumb mut">📦</span>}
+      <div style={{flex:1}}><label className="btn" style={{cursor:"pointer"}}><Ic n="up"/>{up?"Subiendo…":"Subir foto"}<input type="file" accept="image/*" hidden onChange={pick}/></label>
+        <input className="inp" style={{marginTop:8}} placeholder="…o pegá la URL de la imagen" value={f.imagen_url} onChange={e=>set("imagen_url",e.target.value)}/></div></div></div>
+    <div className="g2">
+      <div className="f"><label>Precio en USDT (por unidad)</label><input className="inp" inputMode="decimal" value={f.precio_usdt} onChange={e=>set("precio_usdt",e.target.value)}/></div>
+      <div className="f"><label>Precio en pesos (opcional)</label><input className="inp" inputMode="numeric" value={f.precio_ars} onChange={e=>set("precio_ars",e.target.value)}/>
+        <p className="help">Si lo dejás vacío se calcula con la cotización de Ajustes.</p></div>
+    </div>
+    <div className="f"><label>Precios mayoristas por cantidad</label>
+      {f.tramos.map((t,i)=><div className="trow" key={i}>
+        <input className="inp" inputMode="numeric" placeholder="Desde (unidades)" value={t.min} onChange={e=>setT(i,"min",e.target.value)} aria-label="Unidades mínimas"/>
+        <input className="inp" inputMode="decimal" placeholder="USDT c/u" value={t.usdt} onChange={e=>setT(i,"usdt",e.target.value)} aria-label="Precio USDT"/>
+        <input className="inp" inputMode="numeric" placeholder="Pesos c/u (opc.)" value={t.ars} onChange={e=>setT(i,"ars",e.target.value)} aria-label="Precio pesos"/>
+        <button className="ib d" onClick={()=>set("tramos",f.tramos.filter((_,j)=>j!==i))} aria-label="Quitar tramo"><Ic n="x"/></button></div>)}
+      <button className="btn" onClick={()=>set("tramos",[...f.tramos,{min:"",usdt:"",ars:""}])}><Ic n="plus"/>Agregar tramo</button>
+      <p className="help">Ej: desde 100 unidades a USDT 7. En la tienda se muestra “Desde USDT 7,00 · 100+ pzas mayorista”.</p></div>
+    <div className="g3">
+      <div className="f"><label>Stock (vacío = sin control)</label><input className="inp" inputMode="numeric" value={f.stock} onChange={e=>set("stock",e.target.value)}/></div>
+      <div className="f"><label>Avisar con stock ≤</label><input className="inp" inputMode="numeric" value={f.stock_minimo} onChange={e=>set("stock_minimo",e.target.value)}/></div>
+      <div className="f"><label>Orden</label><input className="inp" inputMode="numeric" value={f.orden} onChange={e=>set("orden",e.target.value)}/></div>
+    </div>
+    <label style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer"}}>
+      <button type="button" role="switch" aria-checked={f.activo} className={"sw"+(f.activo?" on":"")} onClick={()=>set("activo",!f.activo)}/> Visible en la tienda</label>
+  </Modal>;
+}
+
+function Productos({products,cats,reload,toast,catFilter}){
+  const [q,setQ]=useState(""),[vis,setVis]=useState("todos"),[edit,setEdit]=useState(null);
+  const list=products.filter(p=>(!catFilter||p.categoria===catFilter)&&(vis==="todos"||(vis==="activos")===p.activo)&&(!q||(p.nombre+" "+p.marca).toLowerCase().includes(q.toLowerCase())));
+  const cname=s=>(cats.find(c=>c.slug===s)||{}).nombre||s;
+  const toggle=async p=>{const {error}=await db.from("productos").update({activo:!p.activo}).eq("id",p.id);
+    error?toast("No se pudo actualizar",1):(toast(p.activo?"Producto ocultado":"Producto visible"),reload())};
+  const del=async p=>{if(!confirm(`¿Eliminar “${p.nombre}”? Los pedidos anteriores conservan su nombre. Si solo querés ocultarlo, usá el interruptor.`))return;
+    const {error}=await db.from("productos").delete().eq("id",p.id);error?toast("No se pudo eliminar: "+error.message,1):(toast("Producto eliminado"),reload())};
+  const best=p=>p.tramos&&p.tramos.length?Math.min(...p.tramos.map(t=>t.usdt)):null;
+  return <>
+    <div className="hd"><h2>{catFilter?cname(catFilter):"Productos"}</h2><span className="mut">{list.length} productos</span><span className="sp"/>
+      <input className="inp" style={{width:220}} placeholder="Buscar producto" value={q} onChange={e=>setQ(e.target.value)} aria-label="Buscar producto"/>
+      <select className="sel" value={vis} onChange={e=>setVis(e.target.value)} aria-label="Visibilidad"><option value="todos">Todos</option><option value="activos">Visibles</option><option value="inactivos">Ocultos</option></select>
+      <button className="btn p" onClick={()=>setEdit({})}><Ic n="plus"/>Nuevo producto</button></div>
+    <div className="tw"><table>
+      <thead><tr><th></th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Mayorista</th><th>Stock</th><th>Visible</th><th></th></tr></thead>
+      <tbody>{list.length===0&&<tr><td colSpan="8" className="emp">No hay productos. Creá el primero con “Nuevo producto”.</td></tr>}
+      {list.map(p=><tr key={p.id} style={p.activo?null:{opacity:.55}}>
+        <td>{p.imagen_url?<img className="thumb" src={p.imagen_url} alt="" loading="lazy"/>:<span className="thumb mut">📦</span>}</td>
+        <td><b>{p.nombre}</b><div className="mut" style={{fontSize:11}}>{[p.marca,p.subcategoria].filter(Boolean).join(" · ")}</div></td>
+        <td>{cname(p.categoria)}</td>
+        <td><b className="g">{usd(p.precio_usdt)}</b>{p.precio_ars&&<div className="au" style={{fontSize:11}}>{ars(p.precio_ars)}</div>}</td>
+        <td>{best(p)!==null?<span>{usd(best(p))} <span className="mut">({p.tramos.length} tramo{p.tramos.length>1?"s":""})</span></span>:<span className="mut">—</span>}</td>
+        <td>{p.stock===null?<span className="mut">—</span>:<b style={{color:p.stock<=0?"var(--red)":p.stock<=p.stock_minimo?"var(--gold)":"inherit"}}>{p.stock}</b>}</td>
+        <td><button className={"sw"+(p.activo?" on":"")} role="switch" aria-checked={p.activo} aria-label="Visible en la tienda" onClick={()=>toggle(p)}/></td>
+        <td><div className="acts"><button className="ib" aria-label="Editar" onClick={()=>setEdit(p)}><Ic n="edit"/></button>
+          <button className="ib d" aria-label="Eliminar" onClick={()=>del(p)}><Ic n="del"/></button></div></td></tr>)}
+      </tbody></table></div>
+    {edit&&<ProductForm initial={edit.id?edit:null} cats={cats} onClose={()=>setEdit(null)} onSaved={reload} toast={toast}/>}
+  </>;
+}
+
+/* =====================  CATEGORÍAS  ===================== */
+function Categorias({cats,products,reload,toast}){
+  const [edit,setEdit]=useState(null);
+  const del=async c=>{const n=products.filter(p=>p.categoria===c.slug).length;
+    if(n>0) return toast(`Tiene ${n} productos. Movelos o eliminalos antes, o desactivá la categoría.`,1);
+    if(!confirm(`¿Eliminar la categoría “${c.nombre}”?`))return;
+    const {error}=await db.from("categorias").delete().eq("slug",c.slug);error?toast("No se pudo eliminar",1):(toast("Categoría eliminada"),reload())};
+  return <>
+    <div className="hd"><h2>Categorías</h2><span className="mut">Cada una es una sección en el inicio de la tienda</span><span className="sp"/>
+      <button className="btn p" onClick={()=>setEdit({})}><Ic n="plus"/>Nueva categoría</button></div>
+    <div className="tw"><table><thead><tr><th>Orden</th><th>Nombre</th><th>Título en el inicio</th><th>Subtítulo</th><th>Productos</th><th>Activa</th><th></th></tr></thead>
+      <tbody>{cats.length===0&&<tr><td colSpan="7" className="emp">Todavía no hay categorías</td></tr>}
+      {cats.map(c=><tr key={c.slug}><td>{c.orden}</td><td><b>{c.nombre}</b><div className="mut" style={{fontSize:11}}>/{c.slug}</div></td>
+        <td>{c.titulo_home||<span className="mut">—</span>}</td><td className="mut">{c.subtitulo}</td><td>{products.filter(p=>p.categoria===c.slug).length}</td>
+        <td><span className={"pill "+(c.activa?"st-entregado":"st-cancelado")}>{c.activa?"Sí":"No"}</span></td>
+        <td><div className="acts"><button className="ib" aria-label="Editar" onClick={()=>setEdit(c)}><Ic n="edit"/></button>
+          <button className="ib d" aria-label="Eliminar" onClick={()=>del(c)}><Ic n="del"/></button></div></td></tr>)}</tbody></table></div>
+    {edit&&<CatForm initial={edit.slug?edit:null} count={cats.length} onClose={()=>setEdit(null)} onSaved={reload} toast={toast}/>}
+  </>;
+}
+function CatForm({initial,count,onClose,onSaved,toast}){
+  const [f,setF]=useState(initial||{nombre:"",titulo_home:"",subtitulo:"",orden:count+1,activa:true});
+  const set=(k,v)=>setF(s=>({...s,[k]:v}));
+  const save=async()=>{
+    if(!f.nombre.trim()) return toast("Poné un nombre",1);
+    const row={nombre:f.nombre.trim(),titulo_home:(f.titulo_home||"").trim()||null,subtitulo:(f.subtitulo||"").trim(),orden:Math.round(num(f.orden)),activa:f.activa};
+    const {error}=initial?await db.from("categorias").update(row).eq("slug",initial.slug):await db.from("categorias").insert({...row,slug:slugify(f.nombre)});
+    if(error) return toast("No se pudo guardar: "+error.message,1);
+    toast("Categoría guardada");onSaved();onClose()};
+  return <Modal title={initial?"Editar categoría":"Nueva categoría"} onClose={onClose}
+    foot={<><button className="btn" onClick={onClose}>Cancelar</button><button className="btn p" onClick={save}>Guardar</button></>}>
+    <div className="f"><label>Nombre (menú de la tienda)</label><input className="inp" value={f.nombre} onChange={e=>set("nombre",e.target.value)} autoFocus/></div>
+    <div className="f"><label>Título en el inicio</label><input className="inp" placeholder="Ej: Productos Tendencia" value={f.titulo_home||""} onChange={e=>set("titulo_home",e.target.value)}/></div>
+    <div className="f"><label>Subtítulo</label><input className="inp" placeholder="Ej: Minorista y mayorista" value={f.subtitulo||""} onChange={e=>set("subtitulo",e.target.value)}/></div>
+    <div className="g2"><div className="f"><label>Orden</label><input className="inp" inputMode="numeric" value={f.orden} onChange={e=>set("orden",e.target.value)}/></div>
+      <label style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",alignSelf:"end",paddingBottom:8}}>
+        <button type="button" role="switch" aria-checked={f.activa} className={"sw"+(f.activa?" on":"")} onClick={()=>set("activa",!f.activa)}/> Visible en la tienda</label></div>
+  </Modal>;
+}
+
+/* =====================  AJUSTES  ===================== */
+function Ajustes({toast}){
+  const [s,setS]=useState(null),[busy,setBusy]=useState(false),[up,setUp]=useState(false);
+  useEffect(()=>{db.from("ajustes").select("valor").eq("clave","tienda").maybeSingle().then(({data})=>setS((data&&data.valor)||{}))},[]);
+  if(!s) return <p className="emp">Cargando…</p>;
+  const set=(k,v)=>setS(x=>({...x,[k]:v}));
+  const lines=v=>(v||[]).join("\n"), unlines=t=>t.split("\n").map(x=>x.trim()).filter(Boolean);
+  const vend=(s.vendedores||[]).map(v=>`${v.nombre} | ${v.telefono}`).join("\n");
+  const T=(k,l,h)=><div className="f"><label>{l}</label><input className="inp" value={s[k]??""} onChange={e=>set(k,e.target.value)}/>{h&&<p className="help">{h}</p>}</div>;
+  const pick=async e=>{const file=e.target.files[0];if(!file)return;setUp(true);
+    try{set("avatar_url",await uploadImage(file,"tienda"))}catch(err){toast("No se pudo subir: "+err.message,1)}setUp(false)};
+  const save=async()=>{setBusy(true);
+    const valor={...s,cotizacion:num(s.cotizacion),whatsapp:String(s.whatsapp||"").replace(/\D/g,"")};
+    const {error}=await db.from("ajustes").upsert({clave:"tienda",valor});setBusy(false);
+    error?toast("No se pudo guardar: "+error.message,1):toast("Ajustes guardados")};
+  return <>
+    <div className="hd"><h2>Ajustes de la tienda</h2><span className="mut">Portada, contacto y cotización</span><span className="sp"/>
+      <button className="btn p" onClick={save} disabled={busy||up}>{busy?"Guardando…":"Guardar cambios"}</button></div>
+    <div className="box"><h3>General</h3><p className="s">Datos de contacto y precios en pesos</p>
+      <div className="g2">{T("tienda","Nombre de la tienda")}{T("titulo","Título grande de la portada")}</div>
+      <div className="g2" style={{marginTop:14}}>
+        <div className="f"><label>WhatsApp (con código de país, sin + ni espacios)</label><input className="inp" value={s.whatsapp||""} onChange={e=>set("whatsapp",e.target.value)}/><p className="help">Argentina: 549 + código de área + número. Ej: 5493765176960</p></div>
+        <div className="f"><label>Cotización (pesos por 1 USDT)</label><input className="inp" inputMode="decimal" value={s.cotizacion??""} onChange={e=>set("cotizacion",e.target.value)}/><p className="help">Se usa en productos sin precio en pesos. Incluí tu recargo (ej. +2%).</p></div></div>
+      <div className="f" style={{marginTop:14}}><label>Foto de perfil</label><div className="imgrow">
+        {s.avatar_url?<img className="thumb" style={{borderRadius:"50%"}} src={s.avatar_url} alt=""/>:<span className="thumb mut" style={{borderRadius:"50%"}}>◎</span>}
+        <label className="btn" style={{cursor:"pointer"}}><Ic n="up"/>{up?"Subiendo…":"Subir foto"}<input type="file" accept="image/*" hidden onChange={pick}/></label></div></div></div>
+    <div className="box"><h3>Combo</h3><p className="s">Mensaje destacado y botón de WhatsApp</p>
+      {T("combo_mensaje","Mensaje en rojo")}<div className="g2" style={{marginTop:14}}>{T("combo_boton","Texto del botón")}{T("combo_texto","Texto debajo del botón")}</div></div>
+    <div className="box"><h3>Envíos y pagos</h3><p className="s">Se muestran en la tarjeta de la portada</p>
+      <div className="g2">{T("envios_titulo","Título de envíos")}{T("envios_detalle","Detalle de envíos")}</div>
+      <div className="g2" style={{marginTop:14}}>{T("pagos_titulo","Título de pagos")}{T("pagos_texto","Texto de pagos")}</div>
+      <div className="f" style={{marginTop:14}}><label>Métodos de pago (uno por línea)</label><textarea className="inp" rows="4" value={lines(s.pagos_chips)} onChange={e=>set("pagos_chips",unlines(e.target.value))}/></div></div>
+    <div className="box"><h3>Referencias y vendedores</h3><p className="s">Redes sociales y contactos de venta</p>
+      <div className="g2"><div className="f"><label>Referencias (una por línea)</label><textarea className="inp" rows="5" value={lines(s.referencias)} onChange={e=>set("referencias",unlines(e.target.value))}/></div>
+        <div className="f"><label>Vendedores (Nombre | teléfono)</label><textarea className="inp" rows="5" defaultValue={vend} onBlur={e=>set("vendedores",unlines(e.target.value).map(l=>{const [n,...t]=l.split("|");return {nombre:n.trim(),telefono:t.join("|").trim()}}))}/></div></div></div>
+    <div className="box"><h3>Pie de página</h3><p className="s">Aviso, marca y enlaces</p>
+      <div className="g3">{T("pie_aviso","Aviso en rojo")}{T("pie_marca","Marca")}{T("pie_autor","Autor")}</div>
+      <div className="g3" style={{marginTop:14}}>{T("sitio","Sitio web (texto)")}{T("sitio_url","Sitio web (enlace)")}{T("listas_pdf_url","Enlace a listas en PDF")}</div></div>
+  </>;
+}
+
+/* =====================  PANEL  ===================== */
+function Panel({user}){
+  const [page,setPage]=useState("dash"),[nav,setNav]=useState(false);
+  const [cats,setCats]=useState([]),[products,setProducts]=useState([]),[orders,setOrders]=useState([]),[loading,setLoading]=useState(true);
+  const [toastEl,toast]=useToast();
+  const reload=useCallback(async()=>{
+    const [c,p,o]=await Promise.all([
+      db.from("categorias").select("*").order("orden"),
+      db.from("productos").select("*").order("orden").order("created_at",{ascending:false}),
+      db.from("pedidos").select("*, pedido_items(*)").order("created_at",{ascending:false}).limit(2000)]);
+    if(c.error||p.error||o.error) toast("Error al cargar datos: "+((c.error||p.error||o.error).message),1);
+    setCats(c.data||[]);setProducts(p.data||[]);setOrders(o.data||[]);setLoading(false);
+  },[]);
+  useEffect(()=>{reload()},[]);
+  const go=p=>{setPage(p);setNav(false);window.scrollTo(0,0)};
+  const Nv=({id,ic,label,sub})=><button className={"nv"+(sub?" sub":"")+(page===id?" on":"")} onClick={()=>go(id)} aria-current={page===id?"page":undefined}>{ic&&<Ic n={ic}/>}{label}</button>;
+  const pending=orders.filter(o=>o.estado==="pendiente").length;
+  const title=page==="dash"?"Dashboard":page==="pedidos"?"Pedidos":page==="categorias"?"Categorías":page==="ajustes"?"Ajustes":"Catálogo";
+  return <div className="app">
+    <aside className={"side"+(nav?" open":"")}>
+      <div className="logo"><span><Ic n="chart"/></span>Panel</div>
+      <div className="grp">Reportes</div>
+      <Nv id="dash" ic="dash" label="Dashboard"/>
+      <button className={"nv"+(page==="pedidos"?" on":"")} onClick={()=>go("pedidos")}><Ic n="list"/>Pedidos{pending>0&&<span className="pill st-pendiente" style={{marginLeft:"auto"}}>{pending}</span>}</button>
+      <div className="grp">Catálogo</div>
+      <Nv id="prod:" ic="pkg" label="Todos los productos"/>
+      {cats.map(c=><Nv key={c.slug} id={"prod:"+c.slug} label={c.nombre} sub/>)}
+      <div className="grp">Herramientas</div>
+      <Nv id="categorias" ic="tag" label="Categorías"/>
+      <Nv id="ajustes" ic="set" label="Ajustes de la tienda"/>
+      <div className="me"><b>{user.email}</b><small>Administrador</small>
+        <div className="r"><a href="index.html" target="_blank" rel="noreferrer"><Ic n="ext"/>Ver tienda</a>
+          <button onClick={()=>db.auth.signOut()}><Ic n="out"/>Salir</button></div></div>
+    </aside>
+    <div className="main">
+      <div className="top"><button className="menu" onClick={()=>setNav(!nav)} aria-label="Menú"><Ic n="menu"/></button><h1>{title}</h1>
+        <span className="tag"><b>USDT</b> · {orders.length} pedidos</span></div>
+      <div className="content">
+        {loading?<p className="emp">Cargando datos…</p>:
+         page==="dash"?<Dashboard orders={orders} products={products} go={go}/>:
+         page==="pedidos"?<Pedidos orders={orders} reload={reload} toast={toast}/>:
+         page.startsWith("prod:")?<Productos key={page} products={products} cats={cats} reload={reload} toast={toast} catFilter={page.slice(5)}/>:
+         page==="categorias"?<Categorias cats={cats} products={products} reload={reload} toast={toast}/>:
+         <Ajustes toast={toast}/>}
+      </div>
+    </div>
+    {toastEl}
+  </div>;
+}
+
+function Root(){
+  const [session,setSession]=useState(undefined),[isAdmin,setIsAdmin]=useState(null);
+  useEffect(()=>{db.auth.getSession().then(({data})=>setSession(data.session));
+    const {data}=db.auth.onAuthStateChange((_e,s)=>setSession(s));return()=>data.subscription.unsubscribe()},[]);
+  useEffect(()=>{if(!session){setIsAdmin(null);return}
+    db.from("admins").select("user_id").eq("user_id",session.user.id).maybeSingle().then(({data})=>setIsAdmin(!!data))},[session&&session.user.id]);
+  if(!db) return <NoConfig/>;
+  if(session===undefined||(session&&isAdmin===null)) return <p className="emp" style={{padding:"30vh 0"}}>Cargando…</p>;
+  if(!session) return <Login/>;
+  if(!isAdmin) return <NoAccess user={session.user}/>;
+  return <Panel user={session.user}/>;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Root/>);
+</script>
+</body>
+</html>
